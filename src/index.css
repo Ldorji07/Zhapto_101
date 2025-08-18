@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth font rendering and base styles */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-gray-100 text-gray-900;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
