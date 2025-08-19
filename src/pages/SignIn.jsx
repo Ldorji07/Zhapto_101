@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { Mail, Lock } from "lucide-react";
-import { login } from "../lib/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -25,7 +24,7 @@ export default function SignIn() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // 3000ms for 3 seconds, or set to 2000 for 2 seconds
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -39,13 +38,8 @@ export default function SignIn() {
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       let data;
@@ -56,12 +50,19 @@ export default function SignIn() {
         return;
       }
 
-      // Only navigate if login is successful
       if (res.ok && data.success) {
-        navigate("/UserDashboard");
+        // ✅ Save token & role for later use
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+
+        // ✅ Redirect based on role
+        if (data.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         setError((data && data.message) || "Login failed");
-        // Do NOT navigate anywhere on error
       }
     } catch (err) {
       setError("Login failed: " + err.message);
