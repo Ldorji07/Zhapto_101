@@ -17,8 +17,8 @@ function Navbar() {
 
   return (
     <nav className="w-full bg-white shadow px-6 py-4 flex items-center justify-between">
-      {/* Logo */}
-      <Link to="/" className="flex items-center space-x-2">
+      {/* Logo → goes to About Us page */}
+      <Link to="/aboutus" className="flex items-center space-x-2">
         <img
           src="/WhatsApp Image 2025-08-18 at 09.45.30.jpeg"
           alt="Logo"
