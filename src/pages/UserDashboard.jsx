@@ -1,52 +1,84 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
-export default function UserDashboard() {
-  const navigate = useNavigate()
+export default function UserDashboard({ user }) {
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const services = [
-    {
-      name: 'Plumber',
-      path: '/certified/plumber',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.45 (1).jpeg',
-    },
-    {
-      name: 'Electrician',
-      path: '/certified/electrician',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.45.jpeg',
-    },
-    {
-      name: 'Carpenter',
-      path: '/certified/carpenter',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.44 (3).jpeg',
-    },
-    {
-      name: 'Painter',
-      path: '/certified/painter',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.44 (1).jpeg',
-    },
-    {
-      name: 'House Shifter',
-      path: '/certified/house-shifter',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.44 (2).jpeg',
-    },
-    {
-      name: 'House Cleaner',
-      path: '/certified/house-cleaner',
-      img: '/WhatsApp Image 2025-08-18 at 15.40.44.jpeg',
-    },
-  ]
+    { name: "Plumber", path: "/certified/plumber", img: "/service-plumber.jpg" },
+    { name: "Electrician", path: "/certified/electrician", img: "/service-electrician.jpg" },
+    { name: "Carpenter", path: "/certified/carpenter", img: "/service-carpenter.jpg" },
+    { name: "Painter", path: "/certified/painter", img: "/service-painter.jpg" },
+    { name: "House Shifter", path: "/certified/house-shifter", img: "/service-house-shifter.jpg" },
+    { name: "House Cleaner", path: "/certified/house-cleaner", img: "/service-house-cleaner.jpg" },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+      {/* Navbar */}
+      <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between">
+        <div className="text-xl font-bold cursor-pointer" onClick={() => navigate("/dashboard")}>
+          MyApp
+        </div>
+
+        {/* Desktop avatar + logout */}
+        <div className="hidden md:flex items-center gap-4">
+          <img
+            src={user?.profilePic || "/default-avatar.png"}
+            alt="Profile"
+            className="w-10 h-10 rounded-full cursor-pointer"
+            onClick={() => navigate("/profile")}
+          />
+          <button
+            onClick={() => navigate("/signin")}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+
+        {/* Mobile hamburger */}
+        <div className="md:hidden flex items-center">
+          <button onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        <div
+          className={`md:hidden absolute top-16 left-0 w-full bg-white shadow-md flex flex-col p-4 transition-all ${
+            menuOpen ? "flex" : "hidden"
+          }`}
+        >
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              navigate("/profile");
+            }}
+            className="py-2 hover:text-yellow-600"
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              navigate("/signin");
+            }}
+            className="py-2 hover:text-red-500"
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
+
+      {/* Services Section */}
       <main className="flex-1 p-6 grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        {/* Welcome & Services Section */}
         <section className="bg-white rounded-2xl shadow-soft p-6">
-          <h3 className="text-lg font-semibold mb-4">Welcome, User 👋</h3>
+          <h3 className="text-lg font-semibold mb-4">Welcome, {user?.name} 👋</h3>
           <p className="text-gray-600 mb-6">
-            This is a placeholder user dashboard. Protected with role-based routing.
+            This is your dashboard. Click a service to explore certified professionals.
           </p>
 
           <h4 className="text-md font-semibold mb-3">Type of Services</h4>
@@ -68,12 +100,16 @@ export default function UserDashboard() {
           </div>
         </section>
 
-        {/* Upcoming Section */}
-        <section className="bg-white rounded-2xl shadow-soft p-6">
-          <h3 className="text-lg font-semibold mb-2">Upcoming</h3>
-          <div className="h-24 rounded-xl bg-gradient-to-r from-gray-50 to-yellow-50 border"></div>
+        {/* Profile Section (desktop only) */}
+        <section className="hidden lg:block bg-white rounded-2xl shadow-soft p-6">
+          <h3 className="text-lg font-semibold mb-4">Your Profile</h3>
+          <div className="bg-gray-50 p-4 rounded-xl shadow-inner">
+            <p className="mb-2"><span className="font-semibold">Name:</span> {user?.name}</p>
+            <p className="mb-2"><span className="font-semibold">Email:</span> {user?.email}</p>
+            <p className="mb-2"><span className="font-semibold">Phone:</span> {user?.phone}</p>
+          </div>
         </section>
       </main>
     </div>
-  )
+  );
 }
