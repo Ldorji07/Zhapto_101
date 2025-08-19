@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import Navbar from '../components/Navbar'
-import { Mail, Lock } from 'lucide-react'
-import { login } from '../lib/auth'
-import { useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect } from "react";
+import Navbar from "../components/Navbar";
+import { Mail, Lock } from "lucide-react";
+import { login } from "../lib/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function SignIn() {
-  const navigate = useNavigate()
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const navigate = useNavigate();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
 
   const images = [
     "/bhutan-flag-on-repair-tool-concept-wooden-table-background-mechanical-service-theme-with-national-objects-2C646GE.jpg",
@@ -15,20 +20,53 @@ export default function SignIn() {
     "/electrician.jpg",
     "/Cleaning-1.jpg",
     "/Ever-wondered-what’s-behind-Bhutan’s-closed-doors_.webp",
-  ]
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length)
-    }, 3000)    // 3000ms for 3 seconds, or set to 2000 for 2 seconds
-    return () => clearInterval(interval)
-  }, [])
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 3000); // 3000ms for 3 seconds, or set to 2000 for 2 seconds
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    login('user')
-    navigate('/dashboard')
-  }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setError("Login failed: Server returned invalid response.");
+        return;
+      }
+
+      // Only navigate if login is successful
+      if (res.ok && data.success) {
+        navigate("/UserDashboard");
+      } else {
+        setError((data && data.message) || "Login failed");
+        // Do NOT navigate anywhere on error
+      }
+    } catch (err) {
+      setError("Login failed: " + err.message);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,16 +80,21 @@ export default function SignIn() {
 
         <div className="relative grid md:grid-cols-2 bg-white rounded-2xl shadow-lg overflow-hidden max-w-5xl w-full">
           <div className="p-8 md:p-10 flex flex-col justify-center bg-gradient-to-b from-gray-50 to-yellow-50">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-2">Welcome back</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold mb-2">
+              Welcome back
+            </h2>
             <p className="text-gray-500 mb-6">Sign in to continue</p>
-
+            {error && <div className="mb-3 text-red-500 text-sm">{error}</div>}
             <form onSubmit={handleSubmit}>
               <label className="mb-3 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-300">
                 <Mail className="w-5 h-5 text-gray-400" />
                 <input
                   type="email"
+                  name="email"
                   placeholder="Email"
                   className="ml-2 w-full bg-transparent focus:outline-none"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                 />
               </label>
@@ -60,8 +103,11 @@ export default function SignIn() {
                 <Lock className="w-5 h-5 text-gray-400" />
                 <input
                   type="password"
+                  name="password"
                   placeholder="Password"
                   className="ml-2 w-full bg-transparent focus:outline-none"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
               </label>
@@ -83,7 +129,7 @@ export default function SignIn() {
             </div>
 
             <p className="mt-6 text-sm text-gray-500 text-center">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link to="/signup" className="text-yellow-600 hover:underline">
                 Sign up
               </Link>
@@ -121,5 +167,5 @@ export default function SignIn() {
         </div>
       </div>
     </div>
-  )
+  );
 }
