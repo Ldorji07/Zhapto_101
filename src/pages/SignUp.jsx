@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Apple, Mail, Lock, User } from "lucide-react";
+import { Apple, Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,7 +14,8 @@ export default function SignUp() {
     password: "",
   });
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState(""); // Add error state
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,31 +27,20 @@ export default function SignUp() {
     try {
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       let data;
       try {
         data = await res.json();
       } catch {
-        // If response is not JSON, set error
         setError("Registration failed: Server returned invalid response.");
         return;
       }
 
-      if (res.ok && data.success) {
-        setStep("otp");
-      } else {
-        setError((data && data.message) || "Registration failed");
-      }
+      if (res.ok && data.success) setStep("otp");
+      else setError((data && data.message) || "Registration failed");
     } catch (err) {
       setError("Registration failed: " + err.message);
     }
@@ -62,13 +52,8 @@ export default function SignUp() {
     try {
       const res = await fetch("http://localhost:8080/api/auth/verify-otp", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          otpCode: otp,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, otpCode: otp }),
       });
 
       let data;
@@ -79,11 +64,8 @@ export default function SignUp() {
         return;
       }
 
-      if (res.ok && data.success) {
-        navigate("/signin");
-      } else {
-        setError((data && data.message) || "OTP verification failed");
-      }
+      if (res.ok && data.success) navigate("/signin");
+      else setError((data && data.message) || "OTP verification failed");
     } catch (err) {
       setError("OTP verification failed: " + err.message);
     }
@@ -111,6 +93,7 @@ export default function SignUp() {
                   <div className="mb-3 text-red-500 text-sm">{error}</div>
                 )}
                 <form onSubmit={handleSignUpSubmit}>
+                  {/* Username */}
                   <label className="mb-3 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-300">
                     <User className="w-5 h-5 text-gray-400" />
                     <input
@@ -125,6 +108,8 @@ export default function SignUp() {
                       maxLength={50}
                     />
                   </label>
+
+                  {/* Email */}
                   <label className="mb-3 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-300">
                     <Mail className="w-5 h-5 text-gray-400" />
                     <input
@@ -137,25 +122,31 @@ export default function SignUp() {
                       required
                     />
                   </label>
+
+                  {/* Phone */}
                   <label className="mb-3 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-300">
-                    {/* You can use a phone icon here if you want */}
-                    <span className="w-5 h-5 text-gray-400">📞</span>
+                    <Phone className="w-5 h-5 text-gray-400" />
                     <input
-                      type="text"
+                      type="tel"
                       name="phone"
                       placeholder="Phone"
                       className="ml-2 w-full bg-transparent focus:outline-none"
                       value={formData.phone}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setFormData({ ...formData, phone: value });
+                      }}
                       required
                       minLength={8}
                       maxLength={15}
                     />
                   </label>
+
+                  {/* Password */}
                   <label className="mb-4 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-300">
                     <Lock className="w-5 h-5 text-gray-400" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       placeholder="Password"
                       className="ml-2 w-full bg-transparent focus:outline-none"
@@ -164,7 +155,15 @@ export default function SignUp() {
                       required
                       minLength={6}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="ml-2 text-gray-500"
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </button>
                   </label>
+
                   <button
                     type="submit"
                     className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg py-3 transition"
@@ -175,6 +174,7 @@ export default function SignUp() {
               </>
             ) : (
               <>
+                {/* OTP Verification */}
                 <h2 className="text-2xl md:text-3xl font-semibold mb-4">
                   OTP Verification
                 </h2>
