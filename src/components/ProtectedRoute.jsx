@@ -1,18 +1,18 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { getRole, isAuthed } from '../lib/auth'
+import { Navigate, Outlet } from 'react-router-dom';
+import { getRole, isAuthed } from '../lib/auth';
 
 export default function ProtectedRoute({ role }) {
-  const authed = isAuthed()
-  const current = getRole()
+  const authed = isAuthed();
+  const current = getRole();
 
   if (!authed) {
-    return <Navigate to={role === 'admin' ? '/admin' : '/signin'} replace />
+    return <Navigate to={role === 'admin' ? '/admin' : '/signin'} replace />;
   }
 
   if (role && current !== role) {
-    // If wrong role, bounce them to their correct dashboard
-    return <Navigate to={current === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />
+    // Redirect to the correct dashboard if role doesn’t match
+    return <Navigate to={current === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
   }
 
-  return <Outlet />
+  return <Outlet />;
 }

@@ -9,9 +9,9 @@ import SignIn from "./pages/SignIn";
 import AdminLogin from "./pages/AdminLogin";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import Upload from "./pages/Upload";
 import Aboutus from "./pages/Aboutus";
-import Profile from "./pages/Profile"; // 👈 import Profile
+import Profile from "./pages/Profile"; 
+import ServiceProvider from "./pages/ServiceProvider"; // 👈 Added import
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -22,10 +22,10 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/upload" element={<Upload />} />
         <Route path="/aboutus" element={<Aboutus />} />
         <Route path="/UserDashboard" element={<UserDashboard />} />
-        <Route path="/profile" element={<Profile />} /> {/* Profile page */}
+        <Route path="/profile" element={<Profile />} /> 
+        <Route path="/service-provider" element={<ServiceProvider />} /> {/* 👈 New route */}
 
         <Route element={<ProtectedRoute role="user" />}>
           <Route path="/dashboard" element={<UserDashboard />} />

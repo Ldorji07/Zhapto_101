@@ -30,7 +30,7 @@ function Navbar() {
       <div className="hidden md:flex items-center gap-4">
         <Link to="/signup" className="text-gray-700 hover:text-yellow-500">Sign Up</Link>
         <Link to="/signin" className="text-gray-700 hover:text-yellow-500">Sign In</Link>
-        <Link to="/upload" className="text-gray-700 hover:text-yellow-500">Upload</Link>
+       
 
         {role === 'user' && (
           <Link to="/dashboard" className="text-gray-700 hover:text-yellow-500">Dashboard</Link>
@@ -83,7 +83,6 @@ function Navbar() {
 
               <Link to="/signup" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign Up</Link>
               <Link to="/signin" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign In</Link>
-              <Link to="/upload" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Upload</Link>
 
               {role === 'user' && (
                 <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Dashboard</Link>
