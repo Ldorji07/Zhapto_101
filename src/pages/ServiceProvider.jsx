@@ -20,7 +20,11 @@ export default function ServiceProvider({ user }) {
 
   const menuItems = [
     { name: "Home", icon: <Home size={20} />, path: "/UserDashboard" },
-    { name: "Service Provider", icon: <Briefcase size={20} />, path: "/service-provider" },
+    {
+      name: "Service Provider",
+      icon: <Briefcase size={20} />,
+      path: "/service-provider",
+    },
     { name: "Profile", icon: <User size={20} />, path: "/profile" },
     { name: "Notifications", icon: <Bell size={20} />, path: "/notifications" },
     { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
@@ -34,6 +38,7 @@ export default function ServiceProvider({ user }) {
     pricing: "",
     certificates: [],
   });
+  const [pricingType, setPricingType] = useState(""); // "hr" or "onejob"
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +55,34 @@ export default function ServiceProvider({ user }) {
   const handleRegister = (e) => {
     e.preventDefault();
     console.log("Submitting", form);
+  };
+
+  const serviceOptions = [
+    "Plumber",
+    "House Cleaner",
+    "Electrician",
+    "Painter",
+    "House Shifter",
+    "Carpenter",
+  ];
+  const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
+
+  // Add/remove service categories
+  const handleAddServiceCategory = (service) => {
+    if (!form.category?.includes(service)) {
+      setForm((f) => ({
+        ...f,
+        category: f.category ? [...f.category, service] : [service],
+      }));
+    }
+    setServiceDropdownOpen(false);
+  };
+
+  const handleRemoveServiceCategory = (service) => {
+    setForm((f) => ({
+      ...f,
+      category: f.category.filter((s) => s !== service),
+    }));
   };
 
   return (
@@ -185,20 +218,69 @@ export default function ServiceProvider({ user }) {
           </div>
 
           {/* Service Category */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Service Category</label>
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-              required
-            >
-              <option value="">Select category</option>
-              <option value="Plumber">Plumber</option>
-              <option value="Electrician">Electrician</option>
-              <option value="Carpenter">Carpenter</option>
-            </select>
+          <div className="mb-6">
+            <label className="block text-sm font-medium mb-2">
+              Service category
+            </label>
+            <div className="relative inline-block">
+              <button
+                type="button"
+                className="border rounded-full px-4 py-1 bg-white shadow flex items-center"
+                onClick={() => setServiceDropdownOpen(!serviceDropdownOpen)}
+              >
+                {!form.category || form.category.length === 0
+                  ? "Select service"
+                  : "Add more"}
+                <span className="ml-2 text-gray-400">&#9660;</span>
+              </button>
+              {serviceDropdownOpen && (
+                <div className="absolute z-10 left-0 mt-2 bg-white border rounded shadow w-48">
+                  <div
+                    className="triangle-up"
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      left: 20,
+                      width: 0,
+                      height: 0,
+                      borderLeft: "10px solid transparent",
+                      borderRight: "10px solid transparent",
+                      borderBottom: "10px solid #fff",
+                    }}
+                  />
+                  {serviceOptions
+                    .filter((opt) => !(form.category || []).includes(opt))
+                    .map((opt) => (
+                      <button
+                        type="button"
+                        key={opt}
+                        className="block w-full text-left px-4 py-2 hover:bg-yellow-100"
+                        onClick={() => handleAddServiceCategory(opt)}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+            {/* Show selected services as tags */}
+            <div className="flex flex-wrap mt-2 gap-2">
+              {(form.category || []).map((service) => (
+                <span
+                  key={service}
+                  className="inline-flex items-center border rounded-full px-3 py-1 bg-gray-50"
+                >
+                  {service}
+                  <button
+                    type="button"
+                    className="ml-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                    onClick={() => handleRemoveServiceCategory(service)}
+                  >
+                    &#10006;
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* CID */}
@@ -231,22 +313,50 @@ export default function ServiceProvider({ user }) {
                 className="hidden"
                 onChange={handleFileSelect}
               />
-              <span className="text-sm text-gray-600">{form.certificates.length} file(s) added</span>
+              <span className="text-sm text-gray-600">
+                {form.certificates.length} file(s) added
+              </span>
             </div>
           </div>
 
-          {/* Pricing */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Pricing (per hr)</label>
-            <input
-              type="number"
-              name="pricing"
-              value={form.pricing}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-              placeholder="Enter amount"
-              required
-            />
+          {/* Pricing (optional buttons) */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium mb-2">Pricing</label>
+            <div className="flex gap-3 mb-2">
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-full border ${
+                  pricingType === "hr" ? "bg-yellow-300" : "bg-white"
+                }`}
+                onClick={() => setPricingType(pricingType === "hr" ? "" : "hr")}
+              >
+                Per Hour
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-full border ${
+                  pricingType === "onejob" ? "bg-yellow-300" : "bg-white"
+                }`}
+                onClick={() =>
+                  setPricingType(pricingType === "onejob" ? "" : "onejob")
+                }
+              >
+                Per Job
+              </button>
+            </div>
+            {pricingType && (
+              <input
+                type="number"
+                name="pricing"
+                value={form.pricing}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                placeholder={`Enter amount (${
+                  pricingType === "hr" ? "per hour" : "per job"
+                })`}
+                required
+              />
+            )}
           </div>
 
           {/* Submit Button */}

@@ -12,6 +12,7 @@ export default function SignUp() {
     email: "",
     phone: "",
     password: "",
+    role: "user", // default role
   });
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -164,6 +165,7 @@ export default function SignUp() {
                     </button>
                   </label>
 
+                 
                   <button
                     type="submit"
                     className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg py-3 transition"
