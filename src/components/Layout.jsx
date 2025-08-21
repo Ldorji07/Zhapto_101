@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, User, Settings, LogOut, Menu, X, Briefcase, Bell } from "lucide-react";
 import { useUser } from "../context/UserContext";
@@ -34,14 +34,17 @@ export default function Layout({ pageTitle, children }) {
       </div>
     );
 
-  const Sidebar = ({ className = "" }) => (
-    <aside className={`flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen ${className}`}>
+  const Sidebar = ({ onLinkClick }) => (
+    <div className="flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen">
       <h2 className="text-lg font-semibold mb-8">Welcome {user?.name || "User"}</h2>
       <nav className="flex flex-col gap-4">
         {menuItems.map((item) => (
           <button
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() => {
+              navigate(item.path);
+              onLinkClick?.();
+            }}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
               location.pathname === item.path
                 ? "bg-yellow-100 text-yellow-700 font-semibold"
@@ -54,16 +57,36 @@ export default function Layout({ pageTitle, children }) {
         ))}
       </nav>
       <button
-        onClick={() => navigate("/signin")}
+        onClick={() => {
+          navigate("/signin");
+          onLinkClick?.();
+        }}
         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6"
       >
         <LogOut size={20} /> Logout
       </button>
-    </aside>
+    </div>
   );
 
+  // Close sidebar on Escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 relative">
+      {/* Overlay for Mobile Sidebar */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+          onClick={() => setMenuOpen(false)}
+        ></div>
+      )}
+
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <Sidebar />
@@ -71,11 +94,11 @@ export default function Layout({ pageTitle, children }) {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg p-6 z-40 flex flex-col transform transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-40 transform transition-transform duration-300 md:hidden ${
           menuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Sidebar />
+        <Sidebar onLinkClick={() => setMenuOpen(false)} />
       </aside>
 
       {/* Main */}
