@@ -1,253 +1,177 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Home, User, Settings, LogOut, Menu, X, Bell, Edit2, Briefcase } from "lucide-react";
+// pages/Profile.jsx
+import React, { useState, useEffect } from "react";
+import { Edit2, Save } from "lucide-react";
+import Layout from "../components/Layout";
+import { useUser } from "../context/UserContext";
 
-export default function Profile({ user, setUser }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [profileData, setProfileData] = useState({ ...user });
-  const [profilePic, setProfilePic] = useState(user?.profilePic || "/default-avatar.png");
+export default function Profile() {
+  const { user, setUser } = useUser();
+  const [editing, setEditing] = useState(false);
 
-  const handleChange = (e) => setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    bio: "",
+    facebook: "",
+    linkedin: "",
+    instagram: "",
+    profilePic: "",
+  });
 
-  const handlePicChange = (e) => {
+  // Load from user context or localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const initialUser = storedUser ? JSON.parse(storedUser) : user;
+    if (initialUser) setProfileData(initialUser);
+  }, [user]);
+
+  // Handle text input changes locally
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle file upload locally
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfilePic(url);
-      setProfileData({ ...profileData, profilePic: url });
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfileData((prev) => ({ ...prev, profilePic: reader.result }));
+    };
+    reader.readAsDataURL(file);
   };
 
+  // Remove profile picture
+  const handleRemovePic = () => {
+    setProfileData((prev) => ({ ...prev, profilePic: "" }));
+  };
+
+  // Save data persistently and update context
   const handleSave = () => {
-    setUser(profileData);
-    alert("Profile updated!");
+    setEditing(false);
+    localStorage.setItem("user", JSON.stringify(profileData));
+    setUser(profileData); // update Navbar and context
   };
-
-  const menuItems = [
-    { name: "Home", icon: <Home size={20} />, path: "/UserDashboard" },
-    { name: "Service Provider", icon: <Briefcase size={20} />, path: "/service-provider" },
-    { name: "Profile", icon: <User size={20} />, path: "/profile" },
-    { name: "Notifications", icon: <Bell size={20} />, path: "/notifications" },
-    { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
-  ];
-
-  const InputCard = ({ label, children }) => (
-    <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col gap-1">
-      <span className="text-sm font-medium text-gray-500">{label}</span>
-      {children}
-    </div>
-  );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar (Desktop) */}
-      <aside className="hidden md:flex flex-col w-64 bg-white shadow-lg p-6">
-        <h2 className="text-lg font-semibold mb-8">Welcome {user?.name}</h2>
-        <nav className="flex flex-col gap-4">
-          {menuItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => navigate(item.path)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
-                location.pathname === item.path
-                  ? "bg-yellow-100 text-yellow-700 font-semibold"
-                  : "hover:bg-yellow-100"
-              }`}
-            >
-              {item.icon}
-              <span className="text-sm font-medium">{item.name}</span>
-            </button>
-          ))}
-        </nav>
-        <button
-          onClick={() => navigate("/signin")}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6"
-        >
-          <LogOut size={20} /> Logout
-        </button>
-      </aside>
+    <Layout pageTitle="Profile">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6 space-y-6">
+        <h2 className="text-2xl font-bold mb-6">My Profile</h2>
 
-      {/* Mobile Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg p-6 z-40 flex flex-col transform transition-transform duration-300 ${
-          menuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <h2 className="text-lg font-semibold mb-8">Welcome {user?.name}</h2>
-        <nav className="flex flex-col gap-4">
-          {menuItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => {
-                navigate(item.path);
-                setMenuOpen(false);
-              }}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
-                location.pathname === item.path
-                  ? "bg-yellow-100 text-yellow-700 font-semibold"
-                  : "hover:bg-yellow-100"
-              }`}
-            >
-              {item.icon}
-              <span className="text-sm font-medium">{item.name}</span>
-            </button>
-          ))}
-        </nav>
-        <button
-          onClick={() => {
-            navigate("/signin");
-            setMenuOpen(false);
-          }}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6"
-        >
-          <LogOut size={20} /> Logout
-        </button>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6 flex flex-col gap-6">
-        {/* Header */}
-        <header className="bg-yellow-500 text-white py-4 px-4 sm:px-6 rounded-lg shadow-md flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden bg-yellow-600 text-white p-2 rounded-md shadow-md"
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold whitespace-nowrap">
-              My Profile
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
+        {/* Profile Picture */}
+        <div className="flex flex-col items-center gap-2">
+          {profileData.profilePic ? (
             <img
-              src={profilePic}
+              src={profileData.profilePic}
               alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-white object-cover"
+              className="w-28 h-28 rounded-full object-cover border-2 border-gray-200"
+            />
+          ) : (
+            <div className="w-28 h-28 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-bold text-3xl">
+              {profileData.name?.charAt(0) || "U"}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-2">
+            <input
+              type="file"
+              accept="image/*"
+              id="profilePicUpload"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="profilePicUpload"
+              className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
+            >
+              Upload
+            </label>
+            {profileData.profilePic && (
+              <button
+                onClick={handleRemovePic}
+                className="bg-red-100 text-red-500 hover:bg-red-200 px-4 py-2 rounded-md transition"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Profile Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {["name", "email", "phone", "address"].map((field) => (
+            <div key={field}>
+              <label className="font-medium">
+                {field.charAt(0).toUpperCase() + field.slice(1)}
+              </label>
+              <input
+                type={field === "email" ? "email" : "text"}
+                name={field}
+                value={profileData[field]}
+                disabled={!editing}
+                onChange={handleChange}
+                className={`border px-3 py-1 rounded-lg w-full ${
+                  editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
+                }`}
+              />
+            </div>
+          ))}
+
+          <div className="md:col-span-2">
+            <label className="font-medium">Bio</label>
+            <textarea
+              name="bio"
+              value={profileData.bio}
+              disabled={!editing}
+              onChange={handleChange}
+              rows={3}
+              className={`border px-3 py-1 rounded-lg w-full ${
+                editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
+              }`}
             />
           </div>
-        </header>
 
-        {/* Profile Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column */}
-          <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center gap-4">
-            <div className="relative">
-              <img
-                src={profilePic}
-                alt="Profile"
-                className="w-40 h-40 rounded-full border-4 border-yellow-400 object-cover"
-              />
-              <label className="absolute bottom-2 right-2 bg-yellow-500 p-2 rounded-full cursor-pointer hover:bg-yellow-600 transition">
-                <Edit2 size={16} className="text-white" />
-                <input type="file" onChange={handlePicChange} className="hidden" />
+          {["facebook", "linkedin", "instagram"].map((field) => (
+            <div key={field}>
+              <label className="font-medium">
+                {field.charAt(0).toUpperCase() + field.slice(1)}
               </label>
+              <input
+                type="text"
+                name={field}
+                value={profileData[field]}
+                disabled={!editing}
+                onChange={handleChange}
+                className={`border px-3 py-1 rounded-lg w-full ${
+                  editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
+                }`}
+              />
             </div>
-
-            <InputCard label="Full Name">
-              <input
-                type="text"
-                name="name"
-                value={profileData.name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="Enter full name"
-              />
-            </InputCard>
-
-            <InputCard label="Email">
-              <input
-                type="email"
-                name="email"
-                value={profileData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="Enter email"
-              />
-            </InputCard>
-
-            <InputCard label="Phone Number">
-              <input
-                type="text"
-                name="phone"
-                value={profileData.phone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="Enter phone number"
-              />
-            </InputCard>
-
-            <InputCard label="CID">
-              <input
-                type="number"
-                name="cid"
-                value={profileData.cid || ""}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="Enter CID"
-              />
-            </InputCard>
-          </div>
-
-          {/* Right Column */}
-          <div className="flex flex-col gap-4">
-            <InputCard label="Address">
-              <input
-                type="text"
-                name="address"
-                value={profileData.address || ""}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="Enter address"
-              />
-            </InputCard>
-
-            <InputCard label="Gender">
-              <select
-                name="gender"
-                value={profileData.gender || ""}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </InputCard>
-
-            <InputCard label="Blood Group">
-              <select
-                name="bloodGroup"
-                value={profileData.bloodGroup || ""}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              >
-                <option value="">Select Blood Group</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-              </select>
-            </InputCard>
-          </div>
+          ))}
         </div>
 
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={handleSave}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-xl py-2 px-8 shadow-md transition"
-          >
-            Save Changes
-          </button>
+        {/* Edit / Save Button */}
+        <div className="flex justify-end mt-4">
+          {!editing ? (
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+            >
+              <Edit2 size={18} /> Edit
+            </button>
+          ) : (
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+            >
+              <Save size={18} /> Save
+            </button>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 }
