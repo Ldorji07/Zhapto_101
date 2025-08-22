@@ -87,8 +87,8 @@ export default function Layout({ pageTitle, children }) {
         ></div>
       )}
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block">
+      {/* Desktop Sidebar (fixed) */}
+      <div className="hidden md:block fixed top-0 left-0 h-full w-64 z-40">
         <Sidebar />
       </div>
 
@@ -102,7 +102,7 @@ export default function Layout({ pageTitle, children }) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 p-4 sm:p-6">
+      <main className="flex-1 p-4 sm:p-6 md:ml-64">
         {/* Header */}
         <header className="bg-yellow-500 text-white py-4 px-4 sm:px-6 rounded-lg shadow-md flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
