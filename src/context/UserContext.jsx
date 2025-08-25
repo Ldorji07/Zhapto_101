@@ -4,14 +4,12 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // Load from localStorage if available
     const storedUser = localStorage.getItem("user");
     return storedUser
       ? JSON.parse(storedUser)
       : { name: "User", profilePic: "/default-avatar.png" };
   });
 
-  // Save to localStorage whenever user changes
   useEffect(() => {
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
@@ -28,3 +26,4 @@ export function UserProvider({ children }) {
 }
 
 export const useUser = () => useContext(UserContext);
+

@@ -1,18 +1,22 @@
 import React, { useRef, useState } from "react";
 import Layout from "../components/Layout";
+import { useServiceProvider } from "../context/ServiceProviderContext";
+import { useUser } from "../context/UserContext";
 
 export default function ServiceProvider() {
+  const { registerProvider } = useServiceProvider();
+  const { user } = useUser();
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     dzongkhag: "",
     city: "",
     category: [],
-    cid: "",
+    cid: user?.cid || "",
     pricing: "",
     certificates: [],
   });
-  const [pricingType, setPricingType] = useState(""); // "hr" | "onejob"
+  const [pricingType, setPricingType] = useState("");
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
 
   const serviceOptions = [
@@ -49,17 +53,13 @@ export default function ServiceProvider() {
 
   const handleRegister = (e) => {
     e.preventDefault();
-    console.log("Submitting", form);
-    // TODO: send to API
-    alert("Submitted (check console)");
+    registerProvider(form);
+    alert("Registration submitted! Wait for admin approval.");
   };
 
   return (
     <Layout pageTitle="Service Provider Registration">
-      <form
-        onSubmit={handleRegister}
-        className="bg-white shadow-lg rounded-xl p-8 max-w-lg mx-auto space-y-6"
-      >
+      <form className="bg-white shadow-lg rounded-xl p-8 max-w-lg mx-auto space-y-6" onSubmit={handleRegister}>
         {/* Location */}
         <div>
           <p className="text-sm font-medium mb-2">Location</p>
@@ -74,7 +74,6 @@ export default function ServiceProvider() {
               <option value="">Dzongkhag</option>
               <option value="Thimphu">Thimphu</option>
               <option value="Paro">Paro</option>
-              {/* add more */}
             </select>
             <select
               name="city"
@@ -86,13 +85,12 @@ export default function ServiceProvider() {
               <option value="">City</option>
               <option value="Thimphu City">Thimphu City</option>
               <option value="Wangdue Town">Wangdue Town</option>
-              {/* add more */}
             </select>
           </div>
         </div>
 
         {/* Service Category */}
-        <div className="mb-6">
+        <div>
           <label className="block text-sm font-medium mb-2">Service category</label>
           <div className="relative inline-block">
             <button
@@ -105,19 +103,6 @@ export default function ServiceProvider() {
             </button>
             {serviceDropdownOpen && (
               <div className="absolute z-10 left-0 mt-2 bg-white border rounded shadow w-48">
-                <div
-                  className="triangle-up"
-                  style={{
-                    position: "absolute",
-                    top: -10,
-                    left: 20,
-                    width: 0,
-                    height: 0,
-                    borderLeft: "10px solid transparent",
-                    borderRight: "10px solid transparent",
-                    borderBottom: "10px solid #fff",
-                  }}
-                />
                 {serviceOptions
                   .filter((opt) => !form.category.includes(opt))
                   .map((opt) => (
@@ -134,13 +119,9 @@ export default function ServiceProvider() {
             )}
           </div>
 
-          {/* Selected tags */}
           <div className="flex flex-wrap mt-2 gap-2">
             {form.category.map((service) => (
-              <span
-                key={service}
-                className="inline-flex items-center border rounded-full px-3 py-1 bg-gray-50"
-              >
+              <span key={service} className="inline-flex items-center border rounded-full px-3 py-1 bg-gray-50">
                 {service}
                 <button
                   type="button"
@@ -191,23 +172,19 @@ export default function ServiceProvider() {
         </div>
 
         {/* Pricing */}
-        <div className="mb-6">
+        <div>
           <label className="block text-sm font-medium mb-2">Pricing</label>
           <div className="flex gap-3 mb-2">
             <button
               type="button"
-              className={`px-3 py-1 rounded-full border ${
-                pricingType === "hr" ? "bg-yellow-300" : "bg-white"
-              }`}
+              className={`px-3 py-1 rounded-full border ${pricingType === "hr" ? "bg-yellow-300" : "bg-white"}`}
               onClick={() => setPricingType((t) => (t === "hr" ? "" : "hr"))}
             >
               Per Hour
             </button>
             <button
               type="button"
-              className={`px-3 py-1 rounded-full border ${
-                pricingType === "onejob" ? "bg-yellow-300" : "bg-white"
-              }`}
+              className={`px-3 py-1 rounded-full border ${pricingType === "onejob" ? "bg-yellow-300" : "bg-white"}`}
               onClick={() => setPricingType((t) => (t === "onejob" ? "" : "onejob"))}
             >
               Per Job

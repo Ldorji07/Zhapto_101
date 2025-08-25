@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, User, Settings, LogOut, Menu, X, Briefcase, Bell } from "lucide-react";
+import { Home, User, Settings, LogOut, Menu, X, Briefcase, Bell, Users, Clipboard } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
-export default function Layout({ pageTitle, children }) {
+export default function Layout({ pageTitle, children, role = "user" }) {
   const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const menuItems = [
-    { name: "Home", icon: <Home size={20} />, path: "/UserDashboard" },
-    { name: "Service Provider", icon: <Briefcase size={20} />, path: "/service-provider" },
-    { name: "Profile", icon: <User size={20} />, path: "/profile" },
-    { name: "Notifications", icon: <Bell size={20} />, path: "/notifications" },
-    { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
-  ];
+  // Define separate menu items for user and admin
+  const menuItems = role === "admin"
+    ? [
+        { name: "Dashboard", icon: <Home size={20} />, path: "/admin/dashboard" },
+        { name: "Pending Providers", icon: <Clipboard size={20} />, path: "/admin/dashboard" },
+        { name: "Users", icon: <Users size={20} />, path: "/admin/users" }, // Optional page to manage users
+        { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
+      ]
+    : [
+        { name: "Home", icon: <Home size={20} />, path: "/UserDashboard" },
+        { name: "Service Provider", icon: <Briefcase size={20} />, path: "/service-provider" },
+        { name: "Profile", icon: <User size={20} />, path: "/profile" },
+        { name: "Notifications", icon: <Bell size={20} />, path: "/notifications" },
+        { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
+      ];
 
   const Avatar = () =>
     user?.profilePic ? (
@@ -36,7 +44,7 @@ export default function Layout({ pageTitle, children }) {
 
   const Sidebar = ({ onLinkClick }) => (
     <div className="flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen">
-      <h2 className="text-lg font-semibold mb-8">Welcome {user?.name || "User"}</h2>
+      <h2 className="text-lg font-semibold mb-8">{role === "admin" ? "Admin Panel" : `Welcome ${user?.name || "User"}`}</h2>
       <nav className="flex flex-col gap-4">
         {menuItems.map((item) => (
           <button
@@ -68,7 +76,6 @@ export default function Layout({ pageTitle, children }) {
     </div>
   );
 
-  // Close sidebar on Escape key
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") setMenuOpen(false);
@@ -79,7 +86,6 @@ export default function Layout({ pageTitle, children }) {
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
-      {/* Overlay for Mobile Sidebar */}
       {menuOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
@@ -87,7 +93,7 @@ export default function Layout({ pageTitle, children }) {
         ></div>
       )}
 
-      {/* Desktop Sidebar (fixed) */}
+      {/* Desktop Sidebar */}
       <div className="hidden md:block fixed top-0 left-0 h-full w-64 z-40">
         <Sidebar />
       </div>
@@ -101,9 +107,8 @@ export default function Layout({ pageTitle, children }) {
         <Sidebar onLinkClick={() => setMenuOpen(false)} />
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <main className="flex-1 p-4 sm:p-6 md:ml-64">
-        {/* Header */}
         <header className="bg-yellow-500 text-white py-4 px-4 sm:px-6 rounded-lg shadow-md flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <button
@@ -121,7 +126,6 @@ export default function Layout({ pageTitle, children }) {
           </div>
         </header>
 
-        {/* Page Content */}
         {children}
       </main>
     </div>
