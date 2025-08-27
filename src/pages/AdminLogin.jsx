@@ -1,26 +1,45 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import { Mail, Lock } from 'lucide-react'
-import { login } from '../lib/auth'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import Navbar from '../components/Navbar';
+import { Mail, Lock } from 'lucide-react';
+import { login } from '../lib/auth';
+import { useNavigate } from 'react-router-dom';
+
+// Updated image from public folder
+const Skyline = "public/Screenshot 2025-08-27 at 9.36.50 AM.png";
 
 export default function AdminLogin() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    // Pretend auth succeeded as admin
-    login('admin')
-    navigate('/admin/dashboard')
+    e.preventDefault();
+    login('admin');
+    navigate('/admin/dashboard');
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex-1 flex items-center justify-center bg-gray-100 p-4">
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-100">
+      {/* Navbar stays intact */}
+      <div className="relative z-20">
+        <Navbar />
+      </div>
+
+      {/* Clouds animation layer */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="cloud cloud-1" />
+        <div className="cloud cloud-2" />
+        <div className="cloud cloud-3" />
+      </div>
+
+      {/* Main content: moved slightly up for design */}
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10 -mt-28 sm:-mt-32 md:-mt-36 lg:-mt-40">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md"
+        >
           <h2 className="text-2xl font-semibold mb-2 text-center">Admin Login</h2>
-          <p className="text-gray-500 mb-6 text-center">Restricted access for admins only</p>
+          <p className="text-gray-500 mb-6 text-center">
+            Restricted access for admins only
+          </p>
 
           {/* Email */}
           <label className="mb-3 flex items-center bg-gray-100 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-red-300">
@@ -49,6 +68,17 @@ export default function AdminLogin() {
           </button>
         </form>
       </div>
+
+      {/* Skyline background: full width with gradient overlay */}
+      <div className="absolute bottom-0 w-full z-0 flex justify-center pointer-events-none">
+        <img
+          src={Skyline}
+          alt="Skyline"
+          className="w-full max-h-[320px] object-contain opacity-90"
+          style={{ filter: 'brightness(0.95)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-100 via-gray-100/80 to-transparent pointer-events-none" />
+      </div>
     </div>
-  )
+  );
 }

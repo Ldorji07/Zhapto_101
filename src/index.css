@@ -12,3 +12,83 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.cloud {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background: url('/public/cloud-icon-whimsical-swirling-cloud-doodle-illustration-t7cB6t9f_t-removebg-preview.png') no-repeat center/contain;
+  filter: grayscale(100%) brightness(70%);
+  opacity: 0.8; /* Set directly for instant visibility */
+  animation: float linear infinite;
+}
+
+.cloud {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background: url('/public/cloud-icon-whimsical-swirling-cloud-doodle-illustration-t7cB6t9f_t-removebg-preview.png') no-repeat center/contain;
+  filter: grayscale(100%) brightness(70%);
+  opacity: 0;
+  animation:
+    fadeIn 1s ease-out forwards,
+    float linear infinite,
+    fadeLoop 4s ease-in-out infinite;
+  animation-delay:
+    0s,         /* fadeIn starts immediately */
+    0s,         /* float starts immediately */
+    1s;         /* fadeLoop starts after fadeIn finishes */
+}
+
+.cloud {
+  position: absolute;
+  width: 20vw;              /* Responsive width */
+  height: 10vw;             /* Responsive height */
+  max-width: 200px;
+  max-height: 100px;
+  background: url('/public/cloud-icon-whimsical-swirling-cloud-doodle-illustration-t7cB6t9f_t-removebg-preview.png') no-repeat center/contain;
+  filter: grayscale(100%) brightness(70%);
+  opacity: 0;
+  animation:
+    fadeIn 1s ease-out forwards,
+    float linear infinite,
+    fadeLoop 4s ease-in-out infinite;
+  animation-delay:
+    0s,         /* fadeIn starts immediately */
+    0s,         /* float starts immediately */
+    1s;         /* fadeLoop starts after fadeIn finishes */
+}
+
+/* Cloud positions and durations */
+.cloud-1 {
+  top: 10vh;
+  left: -25vw;
+  animation-duration: 1s, 60s, 4s;
+}
+.cloud-2 {
+  top: 16vh;
+  left: -35vw;
+  animation-duration: 1s, 80s, 4s;
+}
+.cloud-3 {
+  top: 22vh;
+  left: -45vw;
+  animation-duration: 1s, 100s, 4s;
+}
+
+/* Floating animation from left to right */
+@keyframes float {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(120vw); }
+}
+
+/* Initial fade-in */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 0.8; }
+}
+
+/* Continuous fade in/out loop */
+@keyframes fadeLoop {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}

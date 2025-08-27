@@ -1,12 +1,10 @@
 // pages/Profile.jsx
 import React, { useState, useEffect } from "react";
-import { Edit2, Save } from "lucide-react";
 import Layout from "../components/Layout";
 import { useUser } from "../context/UserContext";
 
 export default function Profile() {
   const { user, setUser } = useUser();
-  const [editing, setEditing] = useState(false);
 
   const [profileData, setProfileData] = useState({
     username: "",
@@ -48,38 +46,20 @@ export default function Profile() {
             instagram: profile.instagram || "",
             profilePic: profile.profilePic || "",
           });
-          if (!editing) setUser(profile);
+          setUser(profile);
         }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       }
     };
     fetchProfile();
-  }, [setUser, editing]);
+  }, [setUser]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    if (!editing) return; // only allow upload in edit mode
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfileData((prev) => ({ ...prev, profilePic: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemovePic = () => {
-    if (!editing) return;
-    setProfileData((prev) => ({ ...prev, profilePic: "" }));
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (updatedFields) => {
     try {
+      const newData = { ...profileData, ...updatedFields };
+      setProfileData(newData);
+
       const token = localStorage.getItem("token");
       if (!token) return;
 
@@ -89,7 +69,7 @@ export default function Profile() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(newData),
       });
 
       if (res.ok) {
@@ -98,62 +78,34 @@ export default function Profile() {
         setProfileData((prev) => ({ ...prev, ...updatedProfile }));
         setUser(updatedProfile);
         localStorage.setItem("user", JSON.stringify(updatedProfile));
-        alert("Profile updated successfully!");
-        setEditing(false);
       } else {
-        alert("Failed to update profile");
+        console.error("Failed to update profile");
       }
     } catch (err) {
       console.error("Error updating profile:", err);
-      alert("Error updating profile");
     }
   };
 
-  // 🔒 Block navigation ONLY while Save is showing (editing === true)
-  useEffect(() => {
-    if (!editing) return;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    handleSave({ [name]: value });
+  };
 
-    // 1) Block link clicks (react-router <Link> renders <a>)
-    const clickGuard = (e) => {
-      const profileRoot = document.getElementById("profile-page");
-      const target = e.target;
-      const anchor = target.closest('a, [role="link"]');
-
-      // If a link was clicked outside the profile content, block it
-      if (anchor && profileRoot && !profileRoot.contains(anchor)) {
-        e.preventDefault();
-        e.stopPropagation();
-        alert("Please save your changes before leaving this page.");
-      }
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      handleSave({ profilePic: reader.result });
     };
-    document.addEventListener("click", clickGuard, true);
+    reader.readAsDataURL(file);
+  };
 
-    // 2) Warn on browser refresh/close
-    const beforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", beforeUnload);
-
-    // 3) Soft-block Back/Forward
-    const onPop = (e) => {
-      const ok = window.confirm("You have unsaved changes. Leave this page?");
-      if (!ok) {
-        // Cancel the back navigation by pushing state forward again
-        history.pushState(null, "", window.location.href);
-      }
-    };
-    window.addEventListener("popstate", onPop);
-
-    return () => {
-      document.removeEventListener("click", clickGuard, true);
-      window.removeEventListener("beforeunload", beforeUnload);
-      window.removeEventListener("popstate", onPop);
-    };
-  }, [editing]);
+  const handleRemovePic = () => {
+    handleSave({ profilePic: "" });
+  };
 
   return (
-    // NOTE: id="profile-page" is used by the guard to allow clicks inside
     <Layout pageTitle="Profile">
       <div
         id="profile-page"
@@ -175,31 +127,29 @@ export default function Profile() {
             </div>
           )}
 
-          {editing && (
-            <div className="flex gap-2 mt-2">
-              <input
-                type="file"
-                accept="image/*"
-                id="profilePicUpload"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <label
-                htmlFor="profilePicUpload"
-                className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
+          <div className="flex gap-2 mt-2">
+            <input
+              type="file"
+              accept="image/*"
+              id="profilePicUpload"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="profilePicUpload"
+              className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
+            >
+              Upload
+            </label>
+            {profileData.profilePic && (
+              <button
+                onClick={handleRemovePic}
+                className="bg-red-100 text-red-500 hover:bg-red-200 px-4 py-2 rounded-md transition"
               >
-                Upload
-              </label>
-              {profileData.profilePic && (
-                <button
-                  onClick={handleRemovePic}
-                  className="bg-red-100 text-red-500 hover:bg-red-200 px-4 py-2 rounded-md transition"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-          )}
+                Remove
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Profile Details */}
@@ -228,11 +178,8 @@ export default function Profile() {
                 type="text"
                 name={field}
                 value={profileData[field]}
-                disabled={!editing}
                 onChange={handleChange}
-                className={`border px-3 py-1 rounded-lg w-full ${
-                  editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
-                }`}
+                className="border px-3 py-1 rounded-lg w-full border-yellow-400 bg-yellow-50"
               />
             </div>
           ))}
@@ -242,12 +189,9 @@ export default function Profile() {
             <textarea
               name="bio"
               value={profileData.bio}
-              disabled={!editing}
               onChange={handleChange}
               rows={3}
-              className={`border px-3 py-1 rounded-lg w-full ${
-                editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
-              }`}
+              className="border px-3 py-1 rounded-lg w-full border-yellow-400 bg-yellow-50"
             />
           </div>
 
@@ -260,33 +204,11 @@ export default function Profile() {
                 type="text"
                 name={field}
                 value={profileData[field]}
-                disabled={!editing}
                 onChange={handleChange}
-                className={`border px-3 py-1 rounded-lg w-full ${
-                  editing ? "border-yellow-400 bg-yellow-50" : "bg-gray-100"
-                }`}
+                className="border px-3 py-1 rounded-lg w-full border-yellow-400 bg-yellow-50"
               />
             </div>
           ))}
-        </div>
-
-        {/* Edit / Save Button */}
-        <div className="flex justify-end mt-4">
-          {!editing ? (
-            <button
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
-            >
-              <Edit2 size={18} /> Edit
-            </button>
-          ) : (
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 bg-green-500 text- hite px-4 py-2 rounded-md hover:bg-green-600 transition"
-            >
-              <Save size={18} /> Save
-            </button>
-          )}
         </div>
       </div>
     </Layout>
