@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { Mail, Lock } from "lucide-react";
-import { login } from "../lib/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -25,7 +24,7 @@ export default function SignIn() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // 3000ms for 3 seconds, or set to 2000 for 2 seconds
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,12 +55,22 @@ export default function SignIn() {
         return;
       }
 
-      // Only navigate if login is successful
-      if (res.ok && data.success) {
+      // ✅ Adjusted according to backend response structure
+      if (res.ok && data.data?.success) {
+        const token = data.data.token;
+        const user = data.data.user;
+
+        if (token) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+        } else {
+          setError("Login failed: No token received");
+          return;
+        }
+
         navigate("/UserDashboard");
       } else {
         setError((data && data.message) || "Login failed");
-        // Do NOT navigate anywhere on error
       }
     } catch (err) {
       setError("Login failed: " + err.message);
