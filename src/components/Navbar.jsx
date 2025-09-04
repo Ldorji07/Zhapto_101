@@ -1,42 +1,65 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Menu, X } from 'lucide-react'
-import { getRole, logout } from '../lib/auth'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut, Menu, X } from "lucide-react";
+import { getRole, logout } from "../lib/auth";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Navbar() {
-  const navigate = useNavigate()
-  const role = getRole()
-  const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate();
+  let role = null;
+
+  // Make getRole safe
+  try {
+    role = getRole ? getRole() : null;
+  } catch {
+    role = null;
+  }
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
-    logout()
-    navigate('/signin')
-    setIsOpen(false)
-  }
+    logout();
+    navigate("/signin");
+    setIsOpen(false);
+  };
 
   return (
     <nav className="w-full bg-white shadow px-6 py-4 flex items-center justify-between">
       {/* Logo → goes to About Us page */}
       <Link to="/aboutus" className="flex items-center space-x-2">
         <img
-          src="/WhatsApp Image 2025-08-18 at 09.45.30.jpeg"
+          src="/logo.jpeg" // ✅ make sure you put logo.jpeg in public/
           alt="Logo"
-          className="w-14 h-14 rounded-full"
+          className="w-14 h-14 rounded-full object-cover"
+          onError={(e) => {
+            // fallback if image missing
+            e.currentTarget.src =
+              "https://via.placeholder.com/56x56.png?text=Logo";
+          }}
         />
       </Link>
 
-      {/* Desktop menu (visible md and up) */}
+      {/* Desktop menu */}
       <div className="hidden md:flex items-center gap-4">
-        <Link to="/signup" className="text-gray-700 hover:text-yellow-500">Sign Up</Link>
-        <Link to="/signin" className="text-gray-700 hover:text-yellow-500">Sign In</Link>
-       
+        <Link to="/signup" className="text-gray-700 hover:text-yellow-500">
+          Sign Up
+        </Link>
+        <Link to="/signin" className="text-gray-700 hover:text-yellow-500">
+          Sign In
+        </Link>
 
-        {role === 'user' && (
-          <Link to="/dashboard" className="text-gray-700 hover:text-yellow-500">Dashboard</Link>
+        {role === "user" && (
+          <Link to="/dashboard" className="text-gray-700 hover:text-yellow-500">
+            Dashboard
+          </Link>
         )}
-        {role === 'admin' && (
-          <Link to="/admin/dashboard" className="text-gray-700 hover:text-yellow-500">Admin</Link>
+        {role === "admin" && (
+          <Link
+            to="/admin/dashboard"
+            className="text-gray-700 hover:text-yellow-500"
+          >
+            Admin
+          </Link>
         )}
 
         {role ? (
@@ -47,7 +70,12 @@ function Navbar() {
             <LogOut className="w-4 h-4" /> Logout
           </button>
         ) : (
-          <Link to="/admin" className="px-3 py-2 rounded-xl border hover:bg-gray-50">Admin Login</Link>
+          <Link
+            to="/admin"
+            className="px-3 py-2 rounded-xl border hover:bg-gray-50"
+          >
+            Admin Login
+          </Link>
         )}
       </div>
 
@@ -71,24 +99,51 @@ function Navbar() {
             />
             {/* Sidebar */}
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 80, damping: 15 }}
               className="fixed top-0 right-0 h-full w-64 bg-white shadow-lg p-6 flex flex-col gap-4 z-50"
             >
-              <button onClick={() => setIsOpen(false)} className="self-end mb-4">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="self-end mb-4"
+              >
                 <X className="w-6 h-6" />
               </button>
 
-              <Link to="/signup" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign Up</Link>
-              <Link to="/signin" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign In</Link>
+              <Link
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-700 hover:text-yellow-500"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/signin"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-700 hover:text-yellow-500"
+              >
+                Sign In
+              </Link>
 
-              {role === 'user' && (
-                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Dashboard</Link>
+              {role === "user" && (
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-700 hover:text-yellow-500"
+                >
+                  Dashboard
+                </Link>
               )}
-              {role === 'admin' && (
-                <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Admin</Link>
+              {role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-700 hover:text-yellow-500"
+                >
+                  Admin
+                </Link>
               )}
 
               {role ? (
@@ -99,14 +154,20 @@ function Navbar() {
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               ) : (
-                <Link to="/admin" onClick={() => setIsOpen(false)} className="px-3 py-2 rounded-xl border hover:bg-gray-50">Admin Login</Link>
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="px-3 py-2 rounded-xl border hover:bg-gray-50"
+                >
+                  Admin Login
+                </Link>
               )}
             </motion.div>
           </>
         )}
       </AnimatePresence>
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

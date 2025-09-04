@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, User, Settings, LogOut, Menu, X, Briefcase, Bell, Users, Clipboard } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Layout({ pageTitle, children, role = "user" }) {
   const { user } = useUser();
-  const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Define separate menu items for user and admin
   const menuItems = role === "admin"
     ? [
         { name: "Dashboard", icon: <Home size={20} />, path: "/admin/dashboard" },
         { name: "Pending Providers", icon: <Clipboard size={20} />, path: "/admin/dashboard" },
-        { name: "Users", icon: <Users size={20} />, path: "/admin/users" }, // Optional page to manage users
+        { name: "Users", icon: <Users size={20} />, path: "/admin/users" },
         { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
       ]
     : [
@@ -28,31 +26,29 @@ export default function Layout({ pageTitle, children, role = "user" }) {
   const Avatar = () =>
     user?.profilePic ? (
       <img
-        src={user.profilePic}
+        src={
+          user.profilePic.startsWith("data:image")
+            ? user.profilePic
+            : `data:image/jpeg;base64,${user.profilePic}`
+        }
         alt="Profile"
         className="w-10 h-10 rounded-full border-2 border-white object-cover cursor-pointer"
-        onClick={() => navigate("/profile")}
       />
     ) : (
-      <div
-        className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-yellow-600 font-bold cursor-pointer border-2 border-white"
-        onClick={() => navigate("/profile")}
-      >
+      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-yellow-600 font-bold cursor-pointer border-2 border-white">
         {user?.name?.charAt(0) || "U"}
       </div>
     );
 
   const Sidebar = ({ onLinkClick }) => (
-    <div className="flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen">
+    <div className="flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen z-40">
       <h2 className="text-lg font-semibold mb-8">{role === "admin" ? "Admin Panel" : `Welcome ${user?.name || "User"}`}</h2>
       <nav className="flex flex-col gap-4">
         {menuItems.map((item) => (
-          <button
+          <Link
             key={item.name}
-            onClick={() => {
-              navigate(item.path);
-              onLinkClick?.();
-            }}
+            to={item.path}
+            onClick={onLinkClick}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
               location.pathname === item.path
                 ? "bg-yellow-100 text-yellow-700 font-semibold"
@@ -61,18 +57,16 @@ export default function Layout({ pageTitle, children, role = "user" }) {
           >
             {item.icon}
             <span className="text-sm font-medium">{item.name}</span>
-          </button>
+          </Link>
         ))}
       </nav>
-      <button
-        onClick={() => {
-          navigate("/signin");
-          onLinkClick?.();
-        }}
+      <Link
+        to="/signin"
+        onClick={onLinkClick}
         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6"
       >
         <LogOut size={20} /> Logout
-      </button>
+      </Link>
     </div>
   );
 
@@ -121,7 +115,7 @@ export default function Layout({ pageTitle, children, role = "user" }) {
               {pageTitle}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate("/profile")}>
             <Avatar />
           </div>
         </header>

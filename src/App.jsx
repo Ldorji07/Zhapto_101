@@ -34,12 +34,13 @@ function App() {
             <Route path="/settings" element={<Settings />} />
 
             {/* Protected routes */}
-            <Route element={<ProtectedRoute role="user" />}>
-              <Route path="/dashboard" element={<UserDashboard />} />
-            </Route>
-            <Route element={<ProtectedRoute role="admin" />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            </Route>
+   <Route path="/admin/login" element={<AdminLogin />} />
+<Route path="/admin" element={<Navigate to="/admin/login" />} />
+
+<Route element={<ProtectedRoute role="admin" />}>
+  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+</Route>
+
 
             {/* Service pages (example placeholders) */}
             <Route path="/certified/plumber" element={<div>Plumber Service Page</div>} />

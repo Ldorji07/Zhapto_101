@@ -1,17 +1,16 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { getRole, isAuthed } from '../lib/auth';
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
 export default function ProtectedRoute({ role }) {
-  const authed = isAuthed();
-  const current = getRole();
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!authed) {
-    return <Navigate to={role === 'admin' ? '/admin' : '/signin'} replace />;
+  if (!token || !user) {
+    return <Navigate to="/admin/login" replace />;
   }
 
-  if (role && current !== role) {
-    // Redirect to the correct dashboard if role doesn’t match
-    return <Navigate to={current === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
+  if (role && user.role !== role) {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return <Outlet />;
