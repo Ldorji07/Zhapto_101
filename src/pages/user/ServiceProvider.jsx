@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
-import Layout from "../components/Layout";
-import { useServiceProvider } from "../context/ServiceProviderContext";
-import { useUser } from "../context/UserContext";
+import Layout from "../../components/Layout";
+import { useServiceProvider } from "../../context/ServiceProviderContext";
+import { useUser } from "../../context/UserContext";
 
 export default function ServiceProvider() {
   const { registerProvider } = useServiceProvider();

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
-import Layout from "../components/Layout";
+import Layout from "../../components/Layout";
 import { Mail, Key } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Settings() {
   const { user, setUser } = useContext(AuthContext);

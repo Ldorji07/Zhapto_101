@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../../components/Navbar";
 import { Mail, Lock } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";

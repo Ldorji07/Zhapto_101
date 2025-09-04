@@ -1,8 +1,8 @@
 // pages/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { Edit2, Save } from "lucide-react";
-import Layout from "../components/Layout";
-import { useUser } from "../context/UserContext";
+import Layout from "../../components/Layout";
+import { useUser } from "../../context/UserContext";
 
 export default function Profile() {
   const { user, setUser } = useUser();

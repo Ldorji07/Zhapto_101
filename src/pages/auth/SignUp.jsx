@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Apple, Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
-import Navbar from "../components/Navbar";
+import Navbar from "../../components/Navbar";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 

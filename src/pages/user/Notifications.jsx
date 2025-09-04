@@ -1,6 +1,6 @@
 import React from "react";
-import Layout from "../components/Layout";
-import { useServiceProvider } from "../context/ServiceProviderContext";
+import Layout from "../../components/Layout";
+import { useServiceProvider } from "../../context/ServiceProviderContext";
 
 export default function Notifications() {
   const { notifications } = useServiceProvider();

@@ -1,16 +1,16 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import SignUp from "./pages/SignUp";
-import SignIn from "./pages/SignIn";
-import AdminLogin from "./pages/AdminLogin";
-import UserDashboard from "./pages/UserDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import Aboutus from "./pages/Aboutus";
-import Profile from "./pages/Profile"; 
-import ServiceProvider from "./pages/ServiceProvider"; 
-import Notifications from "./pages/Notifications";
-import Settings from "./pages/Settings";
+import SignUp from "./pages/auth/SignUp";
+import SignIn from "./pages/auth/SignIn";
+import AdminLogin from "./pages/auth/AdminLogin";
+import UserDashboard from "./pages/user/UserDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Aboutus from "./pages/auth/Aboutus";
+import Profile from "./pages/user/Profile"; 
+import ServiceProvider from "./pages/user/ServiceProvider"; 
+import Notifications from "./pages/user/Notifications";
+import Settings from "./pages/user/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { UserProvider } from "./context/UserContext";

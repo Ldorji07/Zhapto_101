@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import Navbar from "../../components/Navbar";
 import { Mail, Lock } from "lucide-react";
 
 // Updated image path from public folder
