@@ -1,69 +1,78 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Home, User, Settings, LogOut, Menu, X, Briefcase, Bell, Users, Clipboard } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Home, User, Settings, LogOut, Menu, X,
+  Briefcase, Bell, Users, Clipboard, MessageCircle, BarChart2,
+} from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Layout({ pageTitle, children, role = "user" }) {
   const { user } = useUser();
   const location = useLocation();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const menuItems = role === "admin"
     ? [
         { name: "Dashboard", icon: <Home size={20} />, path: "/admin/dashboard" },
-        { name: "Pending Providers", icon: <Clipboard size={20} />, path: "/admin/dashboard" },
         { name: "Users", icon: <Users size={20} />, path: "/admin/users" },
-        { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
+        { name: "Reports", icon: <BarChart2 size={20} />, path: "/admin/reports" },
+        { name: "Reviews", icon: <MessageCircle size={20} />, path: "/admin/reviews" },
+        { name: "Communication", icon: <Clipboard size={20} />, path: "/admin/communication" },
+        { name: "Profile", icon: <User size={20} />, path: "/admin/profile" },
+        { name: "Settings", icon: <Settings size={20} />, path: "/admin/settings" },
       ]
     : [
         { name: "Home", icon: <Home size={20} />, path: "/UserDashboard" },
         { name: "Service Provider", icon: <Briefcase size={20} />, path: "/service-provider" },
         { name: "Profile", icon: <User size={20} />, path: "/profile" },
         { name: "Notifications", icon: <Bell size={20} />, path: "/notifications" },
+        { name: "Reviews", icon: <MessageCircle size={20} />, path: "/reviews" },
+        { name: "Announcements", icon: <Clipboard size={20} />, path: "/announcements" },
         { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
       ];
 
-  const Avatar = () =>
-    user?.profilePic ? (
+  const Avatar = () => {
+    const hasProfilePic = user?.profilePic && user.profilePic.startsWith("data:image");
+    return hasProfilePic ? (
       <img
-        src={
-          user.profilePic.startsWith("data:image")
-            ? user.profilePic
-            : `data:image/jpeg;base64,${user.profilePic}`
-        }
+        src={user.profilePic}
         alt="Profile"
-        className="w-10 h-10 rounded-full border-2 border-white object-cover cursor-pointer"
+        className="w-10 h-10 rounded-full border-2 border-white object-cover cursor-pointer hover:scale-105 transition"
       />
     ) : (
-      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-yellow-600 font-bold cursor-pointer border-2 border-white">
-        {user?.name?.charAt(0) || "U"}
+      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-yellow-500 text-white font-bold cursor-pointer border-2 border-white hover:scale-105 transition">
+        {user?.name?.charAt(0) || "A"}
       </div>
     );
+  };
 
   const Sidebar = ({ onLinkClick }) => (
-    <div className="flex flex-col w-64 bg-white shadow-lg p-6 min-h-screen z-40">
-      <h2 className="text-lg font-semibold mb-8">{role === "admin" ? "Admin Panel" : `Welcome ${user?.name || "User"}`}</h2>
-      <nav className="flex flex-col gap-4">
+    <div className="flex flex-col w-64 bg-gradient-to-br from-white to-yellow-50 border-r border-yellow-100 shadow-lg p-6 min-h-screen z-40">
+      <h2 className="text-lg font-semibold mb-8 text-gray-700">
+        {role === "admin" ? "Admin Panel" : `Welcome ${user?.name || "User"}`}
+      </h2>
+      <nav className="flex flex-col gap-3">
         {menuItems.map((item) => (
           <Link
             key={item.name}
             to={item.path}
             onClick={onLinkClick}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition font-medium ${
               location.pathname === item.path
-                ? "bg-yellow-100 text-yellow-700 font-semibold"
-                : "hover:bg-yellow-100"
+                ? "bg-yellow-100 text-yellow-700 shadow-sm"
+                : "hover:bg-yellow-100 text-gray-700"
             }`}
           >
             {item.icon}
-            <span className="text-sm font-medium">{item.name}</span>
+            <span className="text-sm">{item.name}</span>
           </Link>
         ))}
       </nav>
       <Link
         to="/signin"
         onClick={onLinkClick}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6"
+        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-500 mt-6 transition"
       >
         <LogOut size={20} /> Logout
       </Link>
@@ -82,9 +91,9 @@ export default function Layout({ pageTitle, children, role = "user" }) {
     <div className="flex min-h-screen bg-gray-50 relative">
       {menuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setMenuOpen(false)}
-        ></div>
+        />
       )}
 
       {/* Desktop Sidebar */}
@@ -101,9 +110,9 @@ export default function Layout({ pageTitle, children, role = "user" }) {
         <Sidebar onLinkClick={() => setMenuOpen(false)} />
       </aside>
 
-      {/* Main content */}
+      {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 md:ml-64">
-        <header className="bg-yellow-500 text-white py-4 px-4 sm:px-6 rounded-lg shadow-md flex justify-between items-center mb-6">
+        <header className="bg-yellow-500 text-white py-4 px-4 sm:px-6 rounded-xl shadow-lg flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen((s) => !s)}
@@ -115,7 +124,12 @@ export default function Layout({ pageTitle, children, role = "user" }) {
               {pageTitle}
             </h1>
           </div>
-          <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate("/profile")}>
+          <div
+            className="flex items-center gap-4 cursor-pointer"
+            onClick={() =>
+              role === "admin" ? navigate("/admin/profile") : navigate("/profile")
+            }
+          >
             <Avatar />
           </div>
         </header>

@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom, #87ceeb, #f0f8ff);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Cloud styles */
+.cloud {
+  position: absolute;
+  width: 20vw;
+  height: 10vw;
+  max-width: 200px;
+  max-height: 100px;
+  background: url('/cloud-icon-whimsical-swirling-cloud-doodle-illustration-t7cB6t9f_t-removebg-preview.png') no-repeat center/contain;
+  filter: grayscale(100%) brightness(70%);
+  opacity: 0.8;
+  animation: float linear infinite;
+}
+
+/* Cloud positions and speed */
+.cloud-1 { top: 10%; left: -25vw; animation-duration: 60s; }
+.cloud-2 { top: 25%; left: -35vw; animation-duration: 80s; }
+.cloud-3 { top: 40%; left: -45vw; animation-duration: 100s; }
+
+@keyframes float {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(120vw); }
+}

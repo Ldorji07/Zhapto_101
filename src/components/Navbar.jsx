@@ -8,7 +8,6 @@ function Navbar() {
   const navigate = useNavigate();
   let role = null;
 
-  // Make getRole safe
   try {
     role = getRole ? getRole() : null;
   } catch {
@@ -28,11 +27,10 @@ function Navbar() {
       {/* Logo → goes to About Us page */}
       <Link to="/aboutus" className="flex items-center space-x-2">
         <img
-          src="/logo.jpeg" // ✅ make sure you put logo.jpeg in public/
+          src="/WhatsApp Image 2025-08-18 at 09.45.30.jpeg" // ✅ Use relative path from public/
           alt="Logo"
           className="w-14 h-14 rounded-full object-cover"
           onError={(e) => {
-            // fallback if image missing
             e.currentTarget.src =
               "https://via.placeholder.com/56x56.png?text=Logo";
           }}
