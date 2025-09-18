@@ -3,36 +3,28 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  // ✅ Helper to handle full URL or relative path
   const formatPicUrl = (pic) => {
     if (!pic) return "";
     if (pic.startsWith("http")) return pic;
     return `http://localhost:8080${pic}`;
   };
 
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    if (saved) {
-      const parsedUser = JSON.parse(saved);
-      if (parsedUser.profilePic) {
-        parsedUser.profilePic = formatPicUrl(parsedUser.profilePic);
-      }
-      return parsedUser;
-    }
-    return null;
-  });
+  const [user, setUser] = useState(null); // ✅ Start with null
 
-  // Fetch latest profile from backend
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) {
+        setUser(null);
+        return;
+      }
 
       try {
         const res = await fetch("http://localhost:8080/api/auth/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
+
         if (data.success && data.data?.user) {
           const updatedUser = data.data.user;
           if (updatedUser.profilePic) {
@@ -40,9 +32,17 @@ export const UserProvider = ({ children }) => {
           }
           setUser(updatedUser);
           localStorage.setItem("user", JSON.stringify(updatedUser));
+        } else {
+          // ❌ Invalid token or session expired
+          setUser(null);
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
         }
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
+        setUser(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
       }
     };
 
