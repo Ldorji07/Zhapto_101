@@ -12,37 +12,34 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok && data.success) {
-        // Add role to user object for ProtectedRoute
-        const adminUser = { ...data.user, role: "admin" };
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(adminUser));
+    if (res.ok && data.success) {
+      // ✅ Fix token storage
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify({ role: "admin", email }));
 
-        // Redirect to admin dashboard
-        navigate("/admin/dashboard");
-      } else {
-        setError(data.message || "Login failed");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Try again.");
+      navigate("/admin/dashboard");
+    } else {
+      setError(data.message || "Login failed");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong. Try again.");
+  }
+};
+
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-100">

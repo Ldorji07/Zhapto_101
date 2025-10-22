@@ -38,13 +38,8 @@ export default function SignIn() {
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       let data;
@@ -55,18 +50,25 @@ export default function SignIn() {
         return;
       }
 
-      // ✅ Adjusted according to backend response structure
-      if (res.ok && data.data?.success) {
-        const token = data.data.token;
-        const user = data.data.user;
+      // ✅ Handle both flat and nested backend responses
+      if (res.ok && (data.success || data.data?.success)) {
+        const token = data.token || data.data?.token;
+        const user = data.user || data.data?.user;
 
-        if (token) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-        } else {
+        if (!token) {
           setError("Login failed: No token received");
           return;
         }
+
+        // 🔑 Normalize user id
+        const normalizedUser = {
+          ...user,
+          id: user?.id || user?._id || user?.userId,
+        };
+
+        // ✅ Save token + user in localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
 
         navigate("/UserDashboard");
       } else {
