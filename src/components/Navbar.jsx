@@ -13,11 +13,9 @@ function Navbar() {
 
   const role = user?.role || null;
 
-  // ✅ Show Navbar only on public and admin routes
+  // ✅ Show Navbar only on public routes and admin login page (NOT inside admin panel)
   const allowedRoutes = ["/", "/signin", "/signup", "/aboutus", "/admin/login"];
-  const isAllowed =
-    allowedRoutes.includes(location.pathname) ||
-    location.pathname.startsWith("/admin");
+  const isAllowed = allowedRoutes.includes(location.pathname);
 
   if (!isAllowed) return null;
 
@@ -61,6 +59,7 @@ function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <>
+            {/* Dark background overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
@@ -69,6 +68,8 @@ function Navbar() {
               className="fixed inset-0 bg-black z-40"
               onClick={() => setIsOpen(false)}
             />
+
+            {/* Slide-in panel */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -80,27 +81,66 @@ function Navbar() {
                 <X className="w-6 h-6" />
               </button>
 
+              {/* Public Menu (no user logged in) */}
               {!role && (
                 <>
-                  <Link to="/signup" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign Up</Link>
-                  <Link to="/signin" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Sign In</Link>
-                  <Link to="/admin" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Admin Login</Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-700 hover:text-yellow-500"
+                  >
+                    Sign Up
+                  </Link>
+                  <Link
+                    to="/signin"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-700 hover:text-yellow-500"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/admin/login"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-700 hover:text-yellow-500"
+                  >
+                    Admin Login
+                  </Link>
                 </>
               )}
 
+              {/* User Dashboard Menu */}
               {role === "user" && (
                 <>
-                  <Link to="/UserDashboard" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Dashboard</Link>
-                  <button onClick={handleLogout} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border hover:bg-gray-50">
+                  <Link
+                    to="/UserDashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-700 hover:text-yellow-500"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border hover:bg-gray-50"
+                  >
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </>
               )}
 
+              {/* Admin Dashboard Menu */}
               {role === "admin" && (
                 <>
-                  <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-yellow-500">Admin Dashboard</Link>
-                  <button onClick={handleLogout} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border hover:bg-gray-50">
+                  <Link
+                    to="/admin/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-700 hover:text-yellow-500"
+                  >
+                    Admin Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border hover:bg-gray-50"
+                  >
                     <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </>
