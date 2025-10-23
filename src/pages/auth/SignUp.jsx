@@ -6,17 +6,18 @@ import { motion } from "framer-motion";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("signup"); // 'signup' or 'otp'
+  const [step, setStep] = useState("signup");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     phone: "",
     password: "",
-    role: "user", // default role
+    role: "user",
   });
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // 👈 Loading state
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +26,7 @@ export default function SignUp() {
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // 👈 Start loading
     try {
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
@@ -37,14 +39,19 @@ export default function SignUp() {
         data = await res.json();
       } catch {
         setError("Registration failed: Server returned invalid response.");
+        setLoading(false);
         return;
       }
 
-      if (res.ok && data.success) setStep("otp");
-      else setError((data && data.message) || "Registration failed");
+      if (res.ok && data.success) {
+        setStep("otp");
+      } else {
+        setError((data && data.message) || "Registration failed");
+      }
     } catch (err) {
       setError("Registration failed: " + err.message);
     }
+    setLoading(false); // 👈 End loading
   };
 
   const handleOtpSubmit = async (e) => {
@@ -165,13 +172,22 @@ export default function SignUp() {
                     </button>
                   </label>
 
-                 
-                  <button
-                    type="submit"
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg py-3 transition"
-                  >
-                    Submit
-                  </button>
+                  {/* Loading or Submit */}
+                  {loading ? (
+                    <div className="flex justify-center items-center py-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-yellow-500"></div>
+                      <span className="ml-2 text-yellow-600 text-sm">
+                        Processing your request...
+                      </span>
+                    </div>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg py-3 transition"
+                    >
+                      Submit
+                    </button>
+                  )}
                 </form>
               </>
             ) : (
@@ -225,7 +241,7 @@ export default function SignUp() {
 
                 <p className="mt-6 text-sm text-gray-500 text-center">
                   Already have an account?{" "}
-                  <Link
+                                    <Link
                     to="/signin"
                     className="text-yellow-600 hover:underline"
                   >
@@ -263,3 +279,5 @@ export default function SignUp() {
     </div>
   );
 }
+
+                    
