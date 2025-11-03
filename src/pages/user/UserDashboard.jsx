@@ -7,12 +7,12 @@ export default function UserDashboard({ preLogin }) {
 
   // ✅ Always navigate to listing pages, unless preLogin is true
   const services = [
-    { name: "Plumber", path: "/certified/plumber", img: "public/Gemini_Generated_Image_om2prfom2prfom2p.png" },
-    { name: "Electrician", path: "/certified/electrician", img: "public/Gemini_Generated_Image_vga0krvga0krvga0.png" },
-    { name: "Carpenter", path: "/certified/carpenter", img: "/public/Gemini_Generated_Image_dtd0cgdtd0cgdtd0.png" },
-    { name: "Painter", path: "/certified/painter", img: "public/Gemini_Generated_Image_o6aob4o6aob4o6ao.png" },
-    { name: "House Shifter", path: "/certified/house-shifter", img: "public/Gemini_Generated_Image_tn5sdatn5sdatn5s.png" },
-    { name: "House Cleaner", path: "/certified/house-cleaner", img: "/public/Gemini_Generated_Image_ai3aroai3aroai3a.png" },
+    { name: "Plumber", path: "/certified/plumber", img: "Gemini_Generated_Image_om2prfom2prfom2p.png" },
+    { name: "Electrician", path: "/certified/electrician", img: "Gemini_Generated_Image_vga0krvga0krvga0.png" },
+    { name: "Carpenter", path: "/certified/carpenter", img: "Gemini_Generated_Image_dtd0cgdtd0cgdtd0.png" },
+    { name: "Painter", path: "/certified/painter", img: "Gemini_Generated_Image_o6aob4o6aob4o6ao.png" },
+    { name: "House Shifter", path: "/certified/house-shifter", img: "Gemini_Generated_Image_tn5sdatn5sdatn5s.png" },
+    { name: "House Cleaner", path: "/certified/house-cleaner", img: "Gemini_Generated_Image_ai3aroai3aroai3a.png" },
   ];
 
   const containerClass = preLogin ? "pt-24 max-w-7xl mx-auto px-6" : "";
